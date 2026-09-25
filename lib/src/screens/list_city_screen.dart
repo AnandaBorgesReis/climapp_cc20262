@@ -8,7 +8,7 @@ class ListCityScreen extends StatefulWidget {
   const ListCityScreen({super.key});
 
   @override
-  _ListCityScreenState createState() => _ListCityScreenState();
+  State<ListCityScreen> createState() => _ListCityScreenState();
 }
 
 class _ListCityScreenState extends State<ListCityScreen> {
@@ -17,13 +17,11 @@ class _ListCityScreenState extends State<ListCityScreen> {
   @override
   void initState() {
     super.initState();
-    controller.loadCities();
   }
 
   @override
   void dispose() {
     textController.dispose();
-    controller.dispose();
     super.dispose();
   }
 
@@ -31,7 +29,7 @@ class _ListCityScreenState extends State<ListCityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: DecoratedBox(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: <Color>[Color(0xFF00457D), Color(0xFF05051F)],
             begin: Alignment.topCenter,
@@ -39,32 +37,33 @@ class _ListCityScreenState extends State<ListCityScreen> {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisSize: .max,
+            mainAxisSize: MainAxisSize.max,
             children: [
               const SizedBox(height: 25),
               TextField(
                 style: const TextStyle(color: Colors.white),
                 controller: textController,
-                onChanged: controller.filterCities,
+                onChanged: (query) {
+                  context.read<ListCityController>().filterCities(query);
+                },
                 decoration: const InputDecoration(
-                  fillColor: Color(0xff15ffffff),
+                  fillColor: Color(0x15FFFFFF),
                   filled: true,
                   hintText: 'Digite uma cidade',
                   hintStyle: TextStyle(color: Colors.white),
                   suffixIcon: Icon(Icons.search, color: Colors.white),
                   border: OutlineInputBorder(
-                    borderSide: .none,
+                    borderSide: BorderSide.none,
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                   ),
                 ),
               ),
               const SizedBox(height: 15),
               Expanded(
-                child: ListenableBuilder(
-                  listenable: controller,
-                  builder: (context, _) {
+                child: Consumer<ListCityController>(
+                  builder: (context, controller, child) {
                     if (controller.isLoading) {
                       return const Center(child: CircularProgressIndicator());
                     }
