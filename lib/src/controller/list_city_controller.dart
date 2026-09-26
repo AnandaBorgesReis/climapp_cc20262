@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:climapp_cc20262/src/enums/enviroments_enum.dart';
 import 'package:climapp_cc20262/src/models/weather_forecast_model.dart';
@@ -21,6 +23,7 @@ class ListCityController extends ChangeNotifier {
   List<WeatherForecastModel> allCities = [];
   List<WeatherForecastModel> filteredCities = [];
   bool isLoading = true;
+  String errorMessage = '';
 
   final listCitySearch = [
     'Aracaju,SE',
@@ -30,6 +33,7 @@ class ListCityController extends ChangeNotifier {
   ];
   Future<void> loadCities() async {
     isLoading = true;
+    errorMessage = '';
     notifyListeners();
 
     _deviceCountry = await deviceInfoService.getDeviceCountry();
@@ -37,8 +41,13 @@ class ListCityController extends ChangeNotifier {
     try {
       allCities = await weatherService.getWeatherForecast(listCitySearch);
       filteredCities = List.from(allCities);
+    } on TimeoutException catch (e) {
+      errorMessage =
+          e.message ?? 'Deu ruim nas internet, vá botar crédito seu pobre';
+    } on HttpException catch (e) {
       debugPrint('====================================');
-      debugPrint('Este é o país do celular: $_deviceCountry');
+      errorMessage = e.message;
+      debugPrint(errorMessage);
       debugPrint('====================================');
     } catch (e) {
       print(e);
